@@ -4,15 +4,21 @@ metadata:
   name: realtime
   labels:
     app: realtime
+    app.kubernetes.io/name: realtime-gitops
+    app.kubernetes.io/component: realtime-frontend
 spec:
   selector:
     matchLabels:
       app: realtime
+      app.kubernetes.io/name: realtime-gitops
+      app.kubernetes.io/component: realtime-frontend
   replicas: 2
   template:
     metadata:
       labels:
         app: realtime
+        app.kubernetes.io/name: realtime-gitops
+        app.kubernetes.io/component: realtime-frontend
     spec:
       containers:
       - name: realtime
@@ -44,10 +50,37 @@ metadata:
   name: realtime
   labels:
     app: realtime
+    app.kubernetes.io/name: realtime-gitops
+    app.kubernetes.io/component: realtime-frontend
 spec:
   type: LoadBalancer
   ports:
   - port: 80
-    targetPort: 8080
   selector:
     app: realtime
+    app.kubernetes.io/name: realtime-gitops
+    app.kubernetes.io/component: realtime-frontend
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: realtime-gitops
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  tls:
+  - hosts:
+    - realtime.weaveworks.tech
+    secretName: realtime-weaveworks-tech-crt
+  rules:
+  - host: realtime.weaveworks.tech
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: realtime-frontend
+            port:
+              number: 80
