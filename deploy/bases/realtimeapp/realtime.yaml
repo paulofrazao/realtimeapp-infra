@@ -41,13 +41,47 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: realtime
+  name: git-ops-frontend
+  namespace: weave-gitops
   labels:
     app: realtime
+    app.kubernetes.io/name: weave-gitops
+    app.kubernetes.io/component: git-ops-frontend
 spec:
-  type: LoadBalancer
+  # if your cluster supports it, uncomment the following to automatically create
+  # an external load-balanced IP for the git-ops-frontend service.
+  # type: LoadBalancer
   ports:
   - port: 80
     targetPort: 8080
   selector:
     app: realtime
+    app.kubernetes.io/name: weave-gitops
+    app.kubernetes.io/component: git-ops-frontend
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: weave-gitops
+  namespace: weave-gitops
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  tls:
+  - hosts:
+    - realtime.weaveworks.tech
+    secretName: realtime-weaveworks.tech-crt
+  rules:
+  - host: realtime.weaveworks.tech
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: git-ops-frontend
+            port:
+              number: 80
+
+
