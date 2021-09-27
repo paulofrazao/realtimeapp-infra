@@ -38,26 +38,16 @@ spec:
         ports:
         - containerPort: 8080
 ---
-apiVersion: networking.k8s.io/v1
-kind: Ingress
+apiVersion: v1
+kind: Service
 metadata:
-  name: realtime-gitops
-  annotations:
-    cert-manager.io/cluster-issuer: letsencrypt-prod
-    nginx.ingress.kubernetes.io/rewrite-target: /
+  name: realtime
+  labels:
+    app: realtime
 spec:
-  tls:
-  - hosts:
-    - realtime.weaveworks.tech
-    secretName: realtime-weaveworks-tech-crt
-  rules:
-  - host: realtime.weaveworks.tech
-    http:
-      paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: realtime-frontend
-            port:
-              number: 80
+  type: LoadBalancer
+  ports:
+  - port: 80
+    targetPort: 8080
+  selector:
+    app: realtime
