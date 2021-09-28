@@ -30,10 +30,10 @@ metadata:
 spec:
   tls:
   - hosts:
-    - realtime.weaveworks.tech
-    secretName: realtime-weaveworks.tech-crt
+    - realtime.geshi.ca
+    secretName: realtime-geshi-ca-crt
   rules:
-  - host: realtime.weaveworks.tech
+  - host: realtime.geshi.ca
     http:
       paths:
       - path: /
